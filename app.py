@@ -36,17 +36,23 @@ with open('best_model.pkl', 'rb') as f:
 with open('tfidf_vectorizer.pkl', 'rb') as f:
     tfidf = pickle.load(f)
 
+# Define label mapping dictionary (use the same mapping from training)
+label_mapping = {0: "negative", 1: "neutral", 2: "positive"}
+
 # Streamlit UI
-st.title("Multiclass Text Classification")
+st.title("Multiclass Sentiment Classification")
 
 user_input = st.text_area("Enter text to classify")
 
 if st.button("Predict"):
     processed = preprocess_text(user_input)
     vectorized = tfidf.transform([processed])
-    prediction = model.predict(vectorized)
-    prediction_proba = model.predict_proba(vectorized)
-    confidence = np.max(prediction_proba) * 100
+    prediction_encoded = model.predict(vectorized)[0]  # Get numerical prediction
+    prediction_proba = model.predict_proba(vectorized)  # Get confidence scores
+    confidence = np.max(prediction_proba) * 100  # Get highest confidence percentage
 
-    st.write(f"**Predicted label**: {prediction[0]}")
+    # Convert encoded prediction (0,1,2) to human-readable sentiment label
+    prediction_label = label_mapping[prediction_encoded]
+
+    st.write(f"**Predicted Sentiment**: {prediction_label}")
     st.write(f"**Confidence**: {confidence:.2f}%")
