@@ -3,27 +3,29 @@ import pickle
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.tokenize import word_tokenize
 import numpy as np
+import re
 
-# Use Streamlit caching to ensure NLTK resources are downloaded only once
+# Download necessary NLTK resources (cached)
 @st.cache_resource
 def download_nltk_data():
-    nltk.download('punkt')
     nltk.download('stopwords')
     nltk.download('wordnet')
 
-# Call function to download resources
 download_nltk_data()
 
-# Load NLTK resources
+# Load stopwords and lemmatizer
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
+
+# Custom tokenizer to avoid NLTK punkt issues
+def custom_tokenize(text):
+    return re.split(r'\W+', text)  # Splitting on non-word characters
 
 # Text preprocessing function
 def preprocess_text(text):
     text = text.lower()
-    tokens = word_tokenize(text)
+    tokens = custom_tokenize(text)  # Use regex-based tokenizer instead of word_tokenize
     tokens = [word for word in tokens if word.isalpha()]
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
     return ' '.join(tokens)
