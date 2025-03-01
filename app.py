@@ -5,23 +5,22 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
 import numpy as np
-import os
 
-# Manually set the NLTK data path
-nltk_data_path = os.path.join(os.getcwd(), "nltk_data")
-os.makedirs(nltk_data_path, exist_ok=True)
-nltk.data.path.append(nltk_data_path)
+# Use Streamlit caching to ensure NLTK resources are downloaded only once
+@st.cache_resource
+def download_nltk_data():
+    nltk.download('punkt')
+    nltk.download('stopwords')
+    nltk.download('wordnet')
 
-# Ensure required NLTK resources are downloaded
-nltk.download('punkt', download_dir=nltk_data_path)
-nltk.download('stopwords', download_dir=nltk_data_path)
-nltk.download('wordnet', download_dir=nltk_data_path)
+# Call function to download resources
+download_nltk_data()
 
 # Load NLTK resources
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
-# Preprocessing function
+# Text preprocessing function
 def preprocess_text(text):
     text = text.lower()
     tokens = word_tokenize(text)
